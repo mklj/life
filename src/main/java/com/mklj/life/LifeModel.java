@@ -1,14 +1,15 @@
 package com.mklj.life;
 
-import com.mklj.utils.RectArray;
+import com.mklj.utils.Array2D;
+import com.mklj.utils.Math;
 
 import java.util.Observable;
 import java.util.Random;
 
 public class LifeModel extends Observable {
-	
 
-	private RectArray grid;
+
+	private Array2D.Int grid;
 	private int proba;
 	private int generationNumber;
 	
@@ -16,13 +17,13 @@ public class LifeModel extends Observable {
 	 * <p>Seul constructeur.<br />
 	 * La grille est rectangulaire
 	 * </p>
-	 * @param grid
-	 * @param proba
+	 * @param width - nombre de colonnes
+	 * @param height - nombre de lignes
+	 * @param proba - % probabilité de générer une cellule vivante
 	 */
-	public LifeModel(RectArray grid, int proba) {
-		this.grid = grid;
+	public LifeModel(int width, int height, int proba) {
 		this.proba = proba;
-		this.setGrid(generateRandomGrid(grid, proba));
+		setRandomGrid(width, height, proba);
 		generationNumber = 0;
 	}
 
@@ -37,17 +38,17 @@ public class LifeModel extends Observable {
 		return proba;
 	}
 
-	public RectArray getGrid() {
+	public Array2D.Int getGrid() {
 		return grid;
 	}
 
-	public void setGrid(RectArray newGrid) {
+	public void setGrid(Array2D.Int newGrid) {
 		this.grid = newGrid;
 		updateGrid();
 	}
 	
 	public void cleanGrid() {
-		RectArray blankGrid = new RectArray(grid.getWidth(), grid.getHeight());
+		Array2D.Int blankGrid = new Array2D.Int(grid.getWidth(), grid.getHeight());
 		blankGrid.fill(0);
 		generationNumber = 0;
 		this.setGrid(blankGrid);
@@ -56,11 +57,10 @@ public class LifeModel extends Observable {
 	@Override
 	public String toString() {
 		StringBuilder s = new StringBuilder();
-		
-		for (int i = 0; i < height; i++) {
+		for (int i = 0; i < grid.getWidth(); i++) {
 			s.append("\t");
-			for (int j = 0; j < width; j++)
-				if (grid[i][j] == 0) s.append(". ");
+			for (int j = 0; j < grid.getHeight(); j++)
+				if (grid.getValue(i, j) == 0) s.append(". ");
 				else s.append("o ");
 			s.append("\n");
 		}
@@ -97,14 +97,15 @@ public class LifeModel extends Observable {
 	 * @return Nombre de voisins vivants de la cellule considérée.
 	 */
 	private int countNeighbours(int x, int y) {
-		int n = grid.length - 1;
-		int a = (x-1 < 0) ? n : x-1;
-		int b = (y-1 < 0) ? n : y-1;
-		int c = (x+1 > n) ? 0 : x+1;
-		int d = (y+1 > n) ? 0 : y+1;
-		return (grid[a][b] + grid[x][b] + grid[c][b] +
-				grid[a][y] +              grid[c][y] +
-				grid[a][d] + grid[x][d] + grid[c][d]);
+		int w = grid.getWidth() - 1;
+		int h = grid.getHeight() - 1;
+		int a = Math.divisorSignModulo(x - 1, w);
+		int b = Math.divisorSignModulo(y-1, h);
+		int c = (x+1) % w;
+		int d = (y+1) % h;
+		return (grid.getValue(a, b) + grid.getValue(x, b) + grid.getValue(c, b) +
+				grid.getValue(a, y) +                     + grid.getValue(c, y) +
+				grid.getValue(a, d) + grid.getValue(x, d) + grid.getValue(c, d));
 	}
 	
 	/**
@@ -117,13 +118,14 @@ public class LifeModel extends Observable {
 	 * la génération t, alors une cellule naît dans cette case à la génération
 	 * t+1</li>
 	 * </ul>
-	 * @param x - abscisse de la cellule considérée dans la grille
-	 * @param y - ordonnée de la cellule considérée dans la grille
-	 * @return
+	 * @param x abscisse de la cellule considérée dans la grille
+	 * @param y ordonnée de la cellule considérée dans la grille
+	 * @return 1 si la cellule considérée sera vivante à la génération
+	 * suivante, 0 sinon.
 	 */
 	private int nextState(int x, int y) {
 		int voisins = countNeighbours(x, y);
-		if (grid[x][y] == 1) {
+		if (grid.getValue(x, y) == 1) {
 			if (voisins == 2 || voisins == 3) return 1;
 			else return 0;
 		}
@@ -138,12 +140,12 @@ public class LifeModel extends Observable {
 	 */
 	public void generateNextGrid() {
 		// créer nouvelle grille
-		int[][] nextGrid = new int[height][width];
+		Array2D.Int nextGrid = new Array2D.Int(grid.getWidth(), grid.getHeight());
 		// pour chaque cellule, determiner le prochain état, puis l'écrire
 		// dans la nouvelle grille
-		for (int i = 0; i < height; i++) {
-			for (int j=0; j < width; j++) {
-				nextGrid[i][j] = this.nextState(i, j);
+		for (int i = 0; i < grid.getWidth(); i++) {
+			for (int j=0; j < grid.getHeight(); j++) {
+				nextGrid.setValue(i, j, this.nextState(i, j));
 			}
 		}
 		generationNumber++;
@@ -162,35 +164,34 @@ public class LifeModel extends Observable {
 	
 	/**
 	 * Generates a new grid at random.
-	 * @param height
-	 * @param width
-	 * @param proba - %probability that a given cell is populated
+	 * @param height nombre de colonnes
+	 * @param width nombre de lignes
+	 * @param proba %probability that a given cell is populated
 	 * @return the newly generated grid
 	 */
-	private static int[][] generateRandomGrid(int height, int width, int proba) {
-		int[][] newGrid = new int[height][width];
+	private static Array2D.Int generateRandomGrid(int width, int height, int proba) {
+		Array2D.Int randGrid = new Array2D.Int(width, height);
 		Random r = new Random();
-		int genRand = 0;
-		
-		for (int i = 0; i < height; i++) {
-			for (int j = 0; j < width; j++) {
-				genRand = r.nextInt(100) + 1;
-				if (genRand <= proba) newGrid[i][j] = 1;
-				else newGrid[i][j] = 0;
+
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < height; j++) {
+				int genRand = r.nextInt(100) + 1;
+				if (genRand <= proba) randGrid.setValue(i, j, 1);
+				else randGrid.setValue(i, j, 0);
 			}
 		}
-		return newGrid;
+		return randGrid;
 	}
 	
 	/**
 	 * Remplace la grille par une grille nouvellement générée
-	 * @param height
-	 * @param width
-	 * @param proba - %probability that a given cell is populated
+	 * @param width columns count
+	 * @param height lines count
+	 * @param proba %probability that a given cell is populated
 	 */
-	public void setRandomGrid(int height, int width, int proba) {
+	public void setRandomGrid(int width, int height, int proba) {
 		generationNumber = 0;
-		this.setGrid(generateRandomGrid(height, width, proba));
+		this.setGrid(generateRandomGrid(width, height, proba));
 	}
 	
 }
