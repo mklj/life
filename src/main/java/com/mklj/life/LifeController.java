@@ -1,5 +1,7 @@
 package com.mklj.life;
 
+import com.mklj.utils.Array2D;
+
 public class LifeController {
 
 	private static final int DEFAULT_SLEEP_TIME = 100;
@@ -28,8 +30,8 @@ public class LifeController {
 		this.sleepTime = sleepTime;
 	}
 
-	public void creerVue() {
-		LifeView vue = new LifeView(model, this);
+	public void createLifeView() {
+		LifeView vue = new LifeView(this);
 		model.addObserver(vue);
 		vue.setVisible(true);
 	}
@@ -57,7 +59,7 @@ public class LifeController {
 		t = null;
 	}
 	
-	public int[][] getGrid() {
+	public Array2D.Int getGrid() {
 		return model.getGrid();
 	}
 	
@@ -74,7 +76,9 @@ public class LifeController {
 	}
 	
 	public void setNewRandomGrid() {
-		model.setRandomGrid(model.getHeight(), model.getWidth(), model.getProba());
+		model.setRandomGrid(
+				model.getGrid().getWidth(), model.getGrid().getHeight(),
+				model.getProba());
 	}
 
 

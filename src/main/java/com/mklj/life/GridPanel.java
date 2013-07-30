@@ -1,22 +1,21 @@
 package com.mklj.life;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import com.mklj.utils.Array2D;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
-import javax.swing.JPanel;
 
 public class GridPanel extends JPanel implements MouseListener {
 	
 	private static final int PREFERRED_SIZE = 600;
 	
-	private int[][] grid;
+	private Array2D.Int grid;
 	
-	public GridPanel(int[][] grid) {
+	public GridPanel(Array2D.Int grid) {
 		super();
 		this.grid = grid;
 		this.setBackground(Color.WHITE);
@@ -29,47 +28,37 @@ public class GridPanel extends JPanel implements MouseListener {
 	
 	@Override
 	protected void paintComponent(Graphics g) {
-		double cellSize = getPanelMinDimension() / grid.length;
-		double xTranslation = (getWidth() - cellSize * grid.getW) / 2;
-		double yTranslation = (getHeight() - cellSize * grid.length) / 2;
+		double cellSize = getPanelMinDimension() / grid.getMaxDimension();
+		double xTranslation = (this.getWidth() - cellSize * grid.getWidth()) / 2;
+		double yTranslation = (this.getHeight() - cellSize * grid.getHeight()) / 2;
 		Graphics2D g2 = (Graphics2D) g;
 		// draw border
-		g2.setColor(Color.BLACK);
+		g2.setColor(Color.DARK_GRAY);
 		Rectangle2D r = new Rectangle2D.Double(
 				xTranslation, yTranslation,
-		);
+				cellSize * grid.getWidth(), cellSize * grid.getHeight());
 		g2.draw(r);
 		// draw cells
-		g2.setColor(Color.DARK_GRAY);
-		for (int i = 0; i < grid.length; i++) {
-			for (int j = 0; j < grid.length; j++) {
-				if (grid[i][j] == 1) {
+		g2.setColor(Color.BLACK);
+		for (int i = 0; i < grid.getWidth(); i++) {
+			for (int j = 0; j < grid.getHeight(); j++) {
+				if (grid.getValue(i, j) == 1) {
 					Ellipse2D e = new Ellipse2D.Double(
 							xTranslation + i*cellSize,
 							yTranslation + j*cellSize,
 							cellSize, cellSize);
 					g2.fill(e);
 				}
-//				else {
-//					Rectangle2D r = new Rectangle2D.Double(
-//							xTranslation + i*cellSize,
-//							yTranslation + j*cellSize, cellSize, cellSize);
-//					g2.draw(r);
-//				}
 			}	
 		}
 	}
-	
-	public int[][] getGrid() {
-		return grid;
-	}
 
-	public void setGrid(int[][] newGrid) {
+	public void setGrid(Array2D.Int newGrid) {
 		this.grid = newGrid;
 	}
 
 	/**
-	 * @return the smallest dimension between height and width
+	 * @return the smallest dimension between width and height
 	 */
 	public int getPanelMinDimension() {
 		return (this.getWidth() < this.getHeight()) ?

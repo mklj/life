@@ -9,8 +9,8 @@ package com.mklj.utils;
  */
 public abstract class Array2D {
 
-	private int width;
-	private int height;
+	protected int width;
+	protected int height;
 
 	public Array2D(int width, int height) {
 		this.width = width;
@@ -32,7 +32,9 @@ public abstract class Array2D {
 	@Override
 	public abstract String toString();
 
-
+	/**
+	 * 2DArray implementation to contain integers
+	 */
 	public static class Int extends Array2D {
 
 		private int[][] table;
@@ -42,12 +44,11 @@ public abstract class Array2D {
 			table = new int[width][height];
 		}
 
-
 		@Override
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < getWidth(); i++) {
-				for (int j = 0; j < getHeight(); j++) {
+			for (int i = 0; i < width; i++) {
+				for (int j = 0; j < height; j++) {
 					sb.append(table[i][j]).append(" ");
 				}
 				sb.append("\n");
@@ -55,6 +56,12 @@ public abstract class Array2D {
 			return sb.toString();
 		}
 
+		/**
+		 *
+		 * @param x column index
+		 * @param y line index
+		 * @return the value at table[x][y]
+		 */
 		public int getValue(int x, int y) {
 			return table[x][y];
 		}
@@ -64,8 +71,8 @@ public abstract class Array2D {
 		}
 
 		public void fill(int num) {
-			for (int i = 0; i < getWidth(); i++) {
-				for (int j = 0; j < getHeight(); j++) {
+			for (int i = 0; i < width; i++) {
+				for (int j = 0; j < height; j++) {
 					table[i][j] = num;
 				}
 			}

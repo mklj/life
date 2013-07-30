@@ -1,5 +1,7 @@
 package com.mklj.life;
 
+import com.mklj.utils.Array2D;
+
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.event.ActionEvent;
@@ -7,18 +9,14 @@ import java.awt.event.ActionListener;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JSlider;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 @SuppressWarnings("serial")
 public class LifeView extends JFrame implements Observer {
 	
-	public static final int WINDOW_DEFAULT_WIDTH = 800;
+	private static final int WINDOW_DEFAULT_WIDTH = 800;
 	private static final int WINDOW_DEFAULT_HEIGHT = 800;
 	private static final String WINDOW_TITLE = "Game of life - generation #";
 	private static final String RANDOM_BUTTON = "random grid";
@@ -39,12 +37,12 @@ public class LifeView extends JFrame implements Observer {
 	private Box slideBox;
 	boolean animated;
 	
-	public LifeView(final LifeModel modele, LifeController controller) {
+	public LifeView(LifeController controller) {
 		super();
 		this.controller = controller;
 		animated = false;
 		this.setTitle(WINDOW_TITLE + controller.getGenerationNumber());
-		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		this.setSize(WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT);
 		this.setResizable(true);
 		
@@ -109,10 +107,9 @@ public class LifeView extends JFrame implements Observer {
 	@Override
 	public void update(Observable o, Object changedData) {
 		Object[] data = (Object[]) changedData;
-		gp.setGrid((int[][]) data[0]);
-		this.setTitle(WINDOW_TITLE + (Integer) data[1]);
-//		updateWindowTitle();
-//		gp.repaint(); // ne fonctionne pas, pourquoi ?
+		gp.setGrid((Array2D.Int) data[0]);
+		updateWindowTitle();
+//		gp.repaint(); // ne fonctionne pas ...?
 		this.repaint();
 	}
 	
