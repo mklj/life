@@ -1,0 +1,17 @@
+apply plugin: "java"
+apply plugin: "application"
+
+repositories
+{
+    mavenCentral()
+}
+
+dependencies
+{
+    testCompile 'org.testng:testng:6.8.5'
+}
+
+test
+{
+    useTestNG()
+}
