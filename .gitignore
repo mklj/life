@@ -1,4 +1,7 @@
-.gradle
+.gradle/
 *.iml
 .idea/
 out/
+
+game-of-life/build/
+java-utils/build/
