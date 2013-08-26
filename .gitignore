@@ -1,7 +1,10 @@
-.gradle/
+# intellij idea
 *.iml
 .idea/
-out/
 
+# build dirs
 game-of-life/build/
 java-utils/build/
+
+# gradle
+.gradle/
